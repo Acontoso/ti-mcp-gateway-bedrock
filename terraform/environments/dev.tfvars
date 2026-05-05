@@ -1,0 +1,15 @@
+source_code_repo_url = ""
+environment          = ""
+cost_centre          = ""
+lambda_function_name = ""
+sns_topic_name       = ""
+runtime              = ""
+handler              = ""
+memory_size          = ""
+timeout              = 900
+description          = ""
+gateway_name         = ""
+gateway_description  = ""
+authorization_type   = ""
+tenant_id            = ""
+audience_values      = [""]

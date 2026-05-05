@@ -1,0 +1,41 @@
+name: Linting
+
+# on:
+#   pull_request:
+#     types: [opened]
+
+jobs:
+  filter:
+  name: Updates
+  runs-on: ubuntu-latest
+  outputs:
+    code: ${{ steps.filter.outputs.code }}
+  steps:
+    - uses: actions/checkout@v3
+    - name: Update Check
+      id: filter
+      uses: dorny/paths-filter@v2
+      with:
+        filters: |
+          code:
+            - 'code/**'
+  linting:
+    needs: filter
+    if: ${{ needs.filter.outputs.code == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements_dev.txt
+      - name: Analysing the code with pylint
+        run: |
+          find . -name '*.py' -exec pylint {} \;
+      - name: Analysing the code with black
+        run: |
+          black --check --diff .
