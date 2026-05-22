@@ -32,6 +32,7 @@ jobs:
               - 'terraform/**'
             code:
               - 'code/*.py'
+              - 'code/**/*.py'
               - 'requirements.txt'
 
   unit-tests:
@@ -76,6 +77,7 @@ jobs:
 
       - name: Run Snyk Terraform Scan
         uses: snyk/actions/iac@master
+        if: needs.detect-changes.outputs.terraform == 'true'
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -93,8 +95,20 @@ jobs:
     name: Call Terraform Plan
     needs: [detect-changes]
     if: |
-      needs.detect-changes.outputs.terraform == 'true'
+      needs.detect-changes.outputs.terraform == 'true' && github.event.workflow_run.event == 'pull_request'
     uses: ./.github/workflows/tfplan.yml
     with:
       environment: dev
+      ref: ${{ github.event.workflow_run.head_sha }}
+    secrets: inherit
+
+  call-terraform-plan-prod:
+    name: Call Terraform Plan Production
+    needs: [detect-changes]
+    if: |
+      needs.detect-changes.outputs.terraform == 'true' && github.event.workflow_run.event == 'pull_request'
+    uses: ./.github/workflows/tfplan.yml
+    with:
+      environment: prod
+      ref: ${{ github.event.workflow_run.head_sha }}
     secrets: inherit
